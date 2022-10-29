@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "semantic-segmentation-of-satellite-imagery"
+version = "0.1.0"
+description = ""
+authors = ["Ebram Mekhail <ebrammekhail@gmail.com>"]
+readme = "README.md"
+packages = [{include = "semantic_segmentation_of_satellite_imagery"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.11"
+tensorflow = "^2.10.0"
+pandas = "^1.5.1"
+numpy = "^1.23.4"
+matplotlib = "^3.6.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
