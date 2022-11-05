@@ -285,7 +285,7 @@ history1 = model.fit(X_train, y_train,
 ##Standardscaler 
 #Using categorical crossentropy as loss: 0.677
 
-#model.save('models/satellite_standard_unet_100epochs_7May2021.hdf5')
+# model.save('models/satellite_standard_unet_100epochs.hdf5')
 ############################################################
 #TRY ANOTHE MODEL - WITH PRETRINED WEIGHTS
 #Resnet backbone
@@ -353,9 +353,7 @@ plt.show()
 
 ##################################
 from keras.models import load_model
-model = load_model("models/satellite_standard_unet_100epochs.hdf5",
-                   custom_objects={'dice_loss_plus_2focal_loss': total_loss,
-                                   'jacard_coef':jacard_coef})
+model = load_model("models/satellite_standard_unet_100epochs.hdf5", compile=False)# custom_objects={'dice_loss_plus_2focal_loss': total_loss,'jacard_coef':jacard_coef})
 
 #IOU
 y_pred=model.predict(X_test)
