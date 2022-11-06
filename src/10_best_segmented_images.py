@@ -81,9 +81,6 @@ for path, subdirs, files in os.walk(root_directory):
                         #single_patch_img = (single_patch_img.astype('float32')) / 255. 
                         single_patch_img = single_patch_img[0] #Drop the extra unecessary dimension that patchify adds.                               
                         image_dataset.append(single_patch_img)
-                
-  
-                
   
  #Now do the same as above for masks
  #For this specific dataset we could have added masks to the above code as masks have extension png
@@ -123,16 +120,8 @@ mask_dataset =  np.array(mask_dataset)
 #Sanity check, view few mages
 import random
 import numpy as np
-image_number = random.randint(0, len(image_dataset))
-plt.figure(figsize=(12, 6))
-plt.subplot(121)
-plt.imshow(np.reshape(image_dataset[image_number], (patch_size, patch_size, 3)))
-plt.subplot(122)
-plt.imshow(np.reshape(mask_dataset[image_number], (patch_size, patch_size, 3)))
-plt.show()
 
 
-###########################################################################
 """
 RGB to HEX: (Hexadecimel --> base 16)
 This number divided by sixteen (integer division; ignoring any remainder) gives 
@@ -207,20 +196,7 @@ labels = np.expand_dims(labels, axis=3)
 
 print("Unique labels in label dataset are: ", np.unique(labels))
 
-#Another Sanity check, view few mages
-import random
-import numpy as np
-image_number = random.randint(0, len(image_dataset))
-plt.figure(figsize=(12, 6))
-plt.subplot(121)
-plt.imshow(image_dataset[image_number])
-plt.subplot(122)
-plt.imshow(labels[image_number][:,:,0])
-plt.show()
-
-
 ############################################################################
-
 
 n_classes = len(np.unique(labels))
 from keras.utils import to_categorical
@@ -254,101 +230,87 @@ from simple_multi_unet_model import multi_unet_model, jacard_coef
 
 metrics=['accuracy', jacard_coef]
 
-def get_model():
-    return multi_unet_model(n_classes=n_classes, IMG_HEIGHT=IMG_HEIGHT, IMG_WIDTH=IMG_WIDTH, IMG_CHANNELS=IMG_CHANNELS)
+# model = 
 
-model = get_model()
-model.compile(optimizer='adam', loss=total_loss, metrics=metrics)
-#model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=metrics)
-model.summary()
+# #Minmaxscaler
+# #With weights...[0.1666, 0.1666, 0.1666, 0.1666, 0.1666, 0.1666]   in Dice loss
+# #With focal loss only, after 100 epochs val jacard is: 0.62  (Mean IoU: 0.6)            
+# #With dice loss only, after 100 epochs val jacard is: 0.74 (Reached 0.7 in 40 epochs)
+# #With dice + 5 focal, after 100 epochs val jacard is: 0.711 (Mean IoU: 0.611)
+# ##With dice + 1 focal, after 100 epochs val jacard is: 0.75 (Mean IoU: 0.62)
+# #Using categorical crossentropy as loss: 0.71
 
-
-history1 = model.fit(X_train, y_train, 
-                    batch_size = 16, 
-                    verbose=1, 
-                    epochs=100, 
-                    validation_data=(X_test, y_test), 
-                    shuffle=False)
-
-#Minmaxscaler
-#With weights...[0.1666, 0.1666, 0.1666, 0.1666, 0.1666, 0.1666]   in Dice loss
-#With focal loss only, after 100 epochs val jacard is: 0.62  (Mean IoU: 0.6)            
-#With dice loss only, after 100 epochs val jacard is: 0.74 (Reached 0.7 in 40 epochs)
-#With dice + 5 focal, after 100 epochs val jacard is: 0.711 (Mean IoU: 0.611)
-##With dice + 1 focal, after 100 epochs val jacard is: 0.75 (Mean IoU: 0.62)
-#Using categorical crossentropy as loss: 0.71
-
-##With calculated weights in Dice loss.    
-#With dice loss only, after 100 epochs val jacard is: 0.672 (0.52 iou)
+# ##With calculated weights in Dice loss.    
+# #With dice loss only, after 100 epochs val jacard is: 0.672 (0.52 iou)
 
 
-##Standardscaler 
-#Using categorical crossentropy as loss: 0.677
+# ##Standardscaler 
+# #Using categorical crossentropy as loss: 0.677
 
-# model.save('models/satellite_standard_unet_100epochs.hdf5')
-############################################################
-#TRY ANOTHE MODEL - WITH PRETRINED WEIGHTS
-#Resnet backbone
-BACKBONE = 'resnet34'
-preprocess_input = sm.get_preprocessing(BACKBONE)
+# # model.save('models/satellite_standard_unet_100epochs.hdf5')
+# ############################################################
+# #TRY ANOTHE MODEL - WITH PRETRINED WEIGHTS
+# #Resnet backbone
+# BACKBONE = 'resnet34'
+# preprocess_input = sm.get_preprocessing(BACKBONE)
 
-# preprocess input
-X_train_prepr = preprocess_input(X_train)
-X_test_prepr = preprocess_input(X_test)
+# # preprocess input
+# X_train_prepr = preprocess_input(X_train)
+# X_test_prepr = preprocess_input(X_test)
 
-# define model
-model_resnet_backbone = sm.Unet(BACKBONE, encoder_weights='imagenet', classes=n_classes, activation='softmax')
+# # define model
+# model_resnet_backbone = sm.Unet(BACKBONE, encoder_weights='imagenet', classes=n_classes, activation='softmax')
 
-# compile keras model with defined optimozer, loss and metrics
-#model_resnet_backbone.compile(optimizer='adam', loss=focal_loss, metrics=metrics)
-model_resnet_backbone.compile(optimizer='adam', loss='categorical_crossentropy', metrics=metrics)
+# # compile keras model with defined optimozer, loss and metrics
+# #model_resnet_backbone.compile(optimizer='adam', loss=focal_loss, metrics=metrics)
+# model_resnet_backbone.compile(optimizer='adam', loss='categorical_crossentropy', metrics=metrics)
 
-print(model_resnet_backbone.summary())
+# print(model_resnet_backbone.summary())
 
 
-history2=model_resnet_backbone.fit(X_train_prepr, 
-          y_train,
-          batch_size=16, 
-          epochs=100,
-          verbose=1,
-          validation_data=(X_test_prepr, y_test))
+# history2=model_resnet_backbone.fit(X_train_prepr, 
+#           y_train,
+#           batch_size=16, 
+#           epochs=100,
+#           verbose=1,
+#           validation_data=(X_test_prepr, y_test))
 
-#Minmaxscaler
-#With weights...[0.1666, 0.1666, 0.1666, 0.1666, 0.1666, 0.1666]   in Dice loss
-#With focal loss only, after 100 epochs val jacard is:               
-#With dice + 5 focal, after 100 epochs val jacard is: 0.73 (reached 0.71 in 40 epochs. So faster training but not better result. )
-##With dice + 1 focal, after 100 epochs val jacard is:   
-    ##Using categorical crossentropy as loss: 0.755 (100 epochs)
-#With calc. weights supplied to model.fit: 
+# #Minmaxscaler
+# #With weights...[0.1666, 0.1666, 0.1666, 0.1666, 0.1666, 0.1666]   in Dice loss
+# #With focal loss only, after 100 epochs val jacard is:               
+# #With dice + 5 focal, after 100 epochs val jacard is: 0.73 (reached 0.71 in 40 epochs. So faster training but not better result. )
+# ##With dice + 1 focal, after 100 epochs val jacard is:   
+#     ##Using categorical crossentropy as loss: 0.755 (100 epochs)
+# #With calc. weights supplied to model.fit: 
  
-#Standard scaler
-#Using categorical crossentropy as loss: 0.74
+# #Standard scaler
+# #Using categorical crossentropy as loss: 0.74
 
 
-###########################################################
-#plot the training and validation accuracy and loss at each epoch
-history = history1
-loss = history.history['loss']
-val_loss = history.history['val_loss']
-epochs = range(1, len(loss) + 1)
-plt.plot(epochs, loss, 'y', label='Training loss')
-plt.plot(epochs, val_loss, 'r', label='Validation loss')
-plt.title('Training and validation loss')
-plt.xlabel('Epochs')
-plt.ylabel('Loss')
-plt.legend()
-plt.show()
+# ###########################################################
+# #plot the training and validation accuracy and loss at each epoch
+# history = history1
+# loss = history.history['loss']
+# val_loss = history.history['val_loss']
+# epochs = range(1, len(loss) + 1)
+# plt.plot(epochs, loss, 'y', label='Training loss')
+# plt.plot(epochs, val_loss, 'r', label='Validation loss')
+# plt.title('Training and validation loss')
+# plt.xlabel('Epochs')
+# plt.ylabel('Loss')
+# plt.legend()
+# plt.show()
 
-acc = history.history['jacard_coef']
-val_acc = history.history['val_jacard_coef']
+# acc = history.history['jacard_coef']
+# val_acc = history.history['val_jacard_coef']
 
-plt.plot(epochs, acc, 'y', label='Training IoU')
-plt.plot(epochs, val_acc, 'r', label='Validation IoU')
-plt.title('Training and validation IoU')
-plt.xlabel('Epochs')
-plt.ylabel('IoU')
-plt.legend()
-plt.show()
+# plt.plot(epochs, acc, 'y', label='Training IoU')
+# plt.plot(epochs, val_acc, 'r', label='Validation IoU')
+# plt.title('Training and validation IoU')
+# plt.xlabel('Epochs')
+# plt.ylabel('IoU')
+# plt.legend()
+# plt.show()
 
 
 ##################################
@@ -371,17 +333,64 @@ print("Mean IoU =", IOU_keras.result().numpy())
 #######################################################################
 #Predict on a few images
 
-# Generate 10 images
-import random
+# import random
+# test_img_number = random.randint(0, len(X_test))
+# test_img = X_test[test_img_number]
+# ground_truth=y_test_argmax[test_img_number]
+# #test_img_norm=test_img[:,:,0][:,:,None]
+# test_img_input=np.expand_dims(test_img, 0)
+# prediction = (model.predict(test_img_input))
+# predicted_img=np.argmax(prediction, axis=3)[0,:,:]
 
-for i in range(10):
-    test_img_number = random.randint(0, len(X_test))
-    test_img = X_test[test_img_number]
-    ground_truth=y_test_argmax[test_img_number]
+# # print('Ground truth: ', ground_truth, ground_truth.shape)
+# # print('Predicted Image: ', predicted_img, predicted_img.shape)
+
+# # print('Y test: ', y_test[test_img_number], y_test[test_img_number].shape)
+# # print('Prediction: ', prediction, prediction.shape)
+
+# print("Accuracy: ", jacard_coef(y_test[test_img_number], prediction[0]).op)
+
+# plt.figure(figsize=(12, 8))
+# plt.subplot(231)
+# plt.title('Testing Image')
+# plt.imshow(test_img)
+# plt.subplot(232)
+# plt.title('Testing Label')
+# plt.imshow(ground_truth)
+# plt.subplot(233)
+# plt.title('Prediction on test image')
+# plt.imshow(predicted_img)
+# plt.show()
+
+#####################################################################
+best_10 = []
+for i in range(len(X_test)):
+    test_img = X_test[i]
     test_img_input=np.expand_dims(test_img, 0)
     prediction = (model.predict(test_img_input))
     predicted_img=np.argmax(prediction, axis=3)[0,:,:]
+    acc = jacard_coef(y_test[i], prediction[0])
 
+    if (len(best_10) < 10):
+        best_10.append([i, acc])
+    else:
+        worst = best_10[0][1]
+        worst_index = 0
+        for j in range(1, len(best_10)):
+            if (best_10[j][1] < worst):
+                worst = best_10[j][1]
+                worst_index = j
+        if (acc > worst):
+            best_10[worst_index] = [i, acc]
+
+print(best_10)
+
+for best in best_10:
+    test_img = X_test[best[0]]
+    ground_truth=y_test_argmax[best[0]]
+    test_img_input=np.expand_dims(test_img, 0)
+    prediction = (model.predict(test_img_input))
+    predicted_img=np.argmax(prediction, axis=3)[0,:,:]
     plt.figure(figsize=(12, 8))
     plt.subplot(231)
     plt.title('Testing Image')
@@ -392,6 +401,6 @@ for i in range(10):
     plt.subplot(233)
     plt.title('Prediction on test image')
     plt.imshow(predicted_img)
-    plt.show()
+    plt.show() 
 
 #####################################################################
