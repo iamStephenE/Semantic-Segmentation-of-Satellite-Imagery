@@ -261,9 +261,9 @@ print("Mean IoU =", IOU_keras.result().numpy())
 
 from keras.metrics import MeanIoU
 from keras.metrics import Recall, Precision
-p = Precision(thresholds=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,1])
+p = Precision(thresholds=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
 p.update_state(y_test, y_pred)
-r = Recall(thresholds=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,1])
+r = Recall(thresholds=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
 r.update_state(y_test, y_pred)
 
 recall = np.append([0], np.flip(r.result().numpy()))

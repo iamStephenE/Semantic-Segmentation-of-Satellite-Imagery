@@ -51,7 +51,7 @@ https://arxiv.org/abs/1505.04597
 <img src="./Precision_vs_Recall.png" style="width: 70%;" alt="Precision vs Recall"/>
 </p>
 
-The shape of the precision-recall curve here indicates that this is a decent model. As mentioned in the Logistic Regression Assignment, a precision-call curve depicts the trade-offs between certainty (for instance, the model only guessing true when it is absolutely certain) and a model that guesses true too often (which prioritizes the minimization of false negatives).
+The shape of the precision-recall curve here indicates that this is a great model. As mentioned in the Logistic Regression Assignment, a precision-call curve depicts the trade-offs between certainty (for instance, the model only guessing true when it is absolutely certain) and a model that guesses true too often (which prioritizes the minimization of false negatives). This model tries to maximize both the precision and recall.
 
 ### Training and Validation for IoU and Loss
 
@@ -64,7 +64,7 @@ Where $A, B$ represents the set of the image as a 1D array.
 <img src="./training_and_validation_IoU.png" style="width: 70%;" alt="Training and Validation IoU"/>
 </p>
 
-From this graph, we can observe that both the training and validation IoU are increasing with the number of epochs. Initially, it is a large jump in accuracy but soon thereafter there is slow improvement. To further support this, here is the graph of the Training and Validation Loss.
+From this graph, we can observe that both the training and validation IoU are increasing with the number of epochs. Initially, there is a large jump in accuracy but soon thereafter there is slow improvement. The validation reaches a value of around 0.75 IoU which is fantastic! To further support this, here is the graph of the Training and Validation Loss.
 
 <p align="center">
 <img src="./training_and_validation_loss.png" style="width: 70%;" alt="Training and Validation Loss"/>
@@ -74,14 +74,16 @@ Again, we reduce the loss drastically initially, then it stabilizes and does not
 
 ### Sample of 10 Segmented Images (From Validation Set)
 
-10 segmented images produced by the model are in the docs directory, however, here are some to represent how the model is doing:
+10 segmented images produced by the model are in the "docs" directory, however, here are some to represent how the model is doing:
 
 <p align="center">
-<img src="./Figure_4.png" style="width: 70%;" alt="Figure 4 Prediction"/><img src="./Figure_1.png" style="width: 70%;" alt="Figure 1 Prediction"/>
+<img src="./Figure_1.png" style="width: 70%;" alt="Figure 1 Prediction"/><img src="./Figure_7.png" style="width: 70%;" alt="Figure 7 Prediction"/>
 </p>
 
-From the two images above, the prediction on the test images seems to be performing well to a certain extent, most of the important features are there. The first one is very accurate, and the second one is somewhat accurate (the shape is present). However, in some situations the model is very inaccurate, such as the following:
+From the two images above, the prediction on the test images seems to be performing very well, all the important features of the segmentation is there. However, in some situations the model is somehwat inaccurate. Take the following example:
 
 <p align="center">
-<img src="./Figure_2.png" style="width: 70%;" alt="Figure 2 Prediction"/><img src="./Figure_10.png" style="width: 70%;" alt="Figure 10 Prediction"/>
+<img src="./Figure_9.png" style="width: 70%;" alt="Figure 9 Prediction"/>
 </p>
+
+Nonetheless, this supports the previous value acquired from IoU, which is around 75%. This means that 75% of the prediction on test image maps correctly to the testing label image!
