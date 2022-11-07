@@ -50,14 +50,14 @@ patch_size = 256
 #Therefore, we will crop them to a nearest size divisible by 256 and then 
 #divide all images into patches of 256x256x3. 
 image_dataset = []  
-for path, subdirs, files in os.walk(root_directory):
-    #print(path)  
+for path, subdirs, files in sorted(os.walk(root_directory)):
+    # print(path)
     dirname = path.split(os.path.sep)[-1]
     if dirname == 'images':   #Find all 'images' directories
         images = os.listdir(path)  #List of all image names in this subdirectory
-        for i, image_name in enumerate(images):  
+        for i, image_name in enumerate(sorted(images)):  
             if image_name.endswith(".jpg"):   #Only read jpg images...
-               
+                # print(image_name)  
                 image = cv2.imread(path+"/"+image_name, 1)  #Read each image as BGR
                 SIZE_X = (image.shape[1]//patch_size)*patch_size #Nearest size divisible by our patch size
                 SIZE_Y = (image.shape[0]//patch_size)*patch_size #Nearest size divisible by our patch size
@@ -81,21 +81,18 @@ for path, subdirs, files in os.walk(root_directory):
                         #single_patch_img = (single_patch_img.astype('float32')) / 255. 
                         single_patch_img = single_patch_img[0] #Drop the extra unecessary dimension that patchify adds.                               
                         image_dataset.append(single_patch_img)
-                
-  
-                
   
  #Now do the same as above for masks
  #For this specific dataset we could have added masks to the above code as masks have extension png
 mask_dataset = []  
-for path, subdirs, files in os.walk(root_directory):
-    #print(path)  
+for path, subdirs, files in sorted(os.walk(root_directory)):
+    
     dirname = path.split(os.path.sep)[-1]
     if dirname == 'masks':   #Find all 'images' directories
         masks = os.listdir(path)  #List of all image names in this subdirectory
-        for i, mask_name in enumerate(masks):  
+        for i, mask_name in enumerate(sorted(masks)):  
             if mask_name.endswith(".png"):   #Only read png images... (masks in this dataset)
-               
+                # print("mask",mask_name)  
                 mask = cv2.imread(path+"/"+mask_name, 1)  #Read each image as Grey (or color but remember to map each color to an integer)
                 mask = cv2.cvtColor(mask,cv2.COLOR_BGR2RGB)
                 SIZE_X = (mask.shape[1]//patch_size)*patch_size #Nearest size divisible by our patch size
@@ -285,7 +282,7 @@ history1 = model.fit(X_train, y_train,
 ##Standardscaler 
 #Using categorical crossentropy as loss: 0.677
 
-# model.save('models/satellite_standard_unet_100epochs.hdf5')
+model.save('models/satellite_standard_unet_100epochs.hdf5')
 ############################################################
 #TRY ANOTHE MODEL - WITH PRETRINED WEIGHTS
 #Resnet backbone
