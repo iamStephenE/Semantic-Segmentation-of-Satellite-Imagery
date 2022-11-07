@@ -21,7 +21,7 @@ U-Net Network Architecture:
 The figure above represents the architecture for the U-Net architecture designed by Ronneberger et al. in their paper U-Net: Convolutional Networks for Biomedical Image Segmentation [1]; it gets its name from its U-like shape.
 
 To begin, the top left of the U-Net represents the input layer - as it can be seen, the inputted image tile in the figure above is of size 572 x 572 pixels. As the input goes down the U-shaped architecture (called contracting path), it gets contracted. This contraction consists of a 3x3 convolution ReLU and then a 2x2 max pooling or downsampling. This convolution acts like a filter that can be applied to make the image smaller or larger and it does so by utilizing certain pixels along the way; this influences how the image turns out to be. ReLU (Recitified Linear Unit) which is frequently used due to its simple and linear nature:
-$$ ReLU(x) = max(0, x)$$
+$$ReLU(x) = max(0, x)$$
 
 Max pooling refers to the idea of only considering the most significant pixels in a region, consequently, this substantially reduces the sample size while strictly focusing on the decisive aspects of the image tile. The following figure depicts this idea:
 
