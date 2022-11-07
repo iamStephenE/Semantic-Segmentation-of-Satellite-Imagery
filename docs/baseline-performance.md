@@ -70,7 +70,7 @@ From this graph, we can observe that both the training and validation IoU are in
 <img src="./training_and_validation_loss.png" style="width: 70%;" alt="Training and Validation Loss"/>
 </p>
 
-Again, we reduce the loss drastically initially, then it stabilizes and does not improve by much.
+Initially, the loss is drastically reduced, then it stabilizes and does not improve by much.
 
 ### Sample of 10 Segmented Images (From Validation Set)
 
