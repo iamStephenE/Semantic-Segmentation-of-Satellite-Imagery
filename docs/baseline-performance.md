@@ -21,7 +21,7 @@ U-Net Network Architecture:
 The figure above represents the architecture for the U-Net architecture designed by Ronneberger et al. in their paper U-Net: Convolutional Networks for Biomedical Image Segmentation [1]; it gets its name from its U-like shape.
 
 To begin, the top left of the U-Net represents the input layer - as it can be seen, the inputted image tile in the figure above is of size 572 x 572 pixels. As the input goes down the U-shaped architecture (called contracting path), it gets contracted. This contraction consists of a 3x3 convolution ReLU and then a 2x2 max pooling or downsampling. This convolution acts like a filter that can be applied to make the image smaller or larger and it does so by utilizing certain pixels along the way; this influences how the image turns out to be. ReLU (Recitified Linear Unit) which is frequently used due to its simple and linear nature:
-$$ ReLU(x) = max(0, x)$$
+$$ReLU(x) = max(0, x)$$
 
 Max pooling refers to the idea of only considering the most significant pixels in a region, consequently, this substantially reduces the sample size while strictly focusing on the decisive aspects of the image tile. The following figure depicts this idea:
 
@@ -45,6 +45,16 @@ https://arxiv.org/abs/1505.04597
 
 ## Part 2 (Cont'd): Results [epochs = 100]
 
+### Precision and Recall
+
+<p align="center">
+<img src="./Precision_vs_Recall.png" style="width: 70%;" alt="Precision vs Recall"/>
+</p>
+
+The shape of the precision-recall curve here indicates that this is a decent model. As mentioned in the Logistic Regression Assignment, a precision-call curve depicts the trade-offs between certainty (for instance, the model only guessing true when it is absolutely certain) and a model that guesses true too often (which prioritizes the minimization of false negatives).
+
+### Training and Validation for IoU and Loss
+
 To give an overview of how the model performs, the first thing to show from the results is the Training and Validation IoU (Intersection of Union). IoU refers to how much two images intersect; for instance, if two images where stacked on top of each other, the pixels that match are considered the intersection of the union of the two images. Thus, if we want the model to perform well, this value needs to be maximized. The way we calculate this value is through Jaccard's Coefficient. Which can be calculated as the following:
 $$J(A, B)=\frac{\left|A \cap B\right|}{\left|A \cup B\right|}$$
 
@@ -62,6 +72,8 @@ From this graph, we can observe that both the training and validation IoU are in
 
 Again, we reduce the loss drastically initially, then it stabilizes and does not improve by much.
 
+### Sample of 10 Segmented Images (From Validation Set)
+
 10 segmented images produced by the model are in the docs directory, however, here are some to represent how the model is doing:
 
 <p align="center">
@@ -73,5 +85,3 @@ From the two images above, the prediction on the test images seems to be perform
 <p align="center">
 <img src="./Figure_2.png" style="width: 70%;" alt="Figure 2 Prediction"/><img src="./Figure_10.png" style="width: 70%;" alt="Figure 10 Prediction"/>
 </p>
-
-This supports the final value we acquired for IoU for validation after 100 epochs which are around 0.26; although this might seem very low, considering the small dataset and other conditions, it is adequate.
