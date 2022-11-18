@@ -30,7 +30,8 @@ Total 1305 patches of size 256x256
 import os
 import cv2
 import numpy as np
-
+import nni
+import tensorflow as tf
 from matplotlib import pyplot as plt
 from patchify import patchify
 from PIL import Image
@@ -40,7 +41,7 @@ from tensorflow.keras.metrics import MeanIoU
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 scaler = MinMaxScaler()
 
-root_directory = 'Semantic segmentation dataset/'
+root_directory = '../Semantic segmentation dataset/'
 
 patch_size = 256
 
@@ -50,6 +51,7 @@ patch_size = 256
 #Therefore, we will crop them to a nearest size divisible by 256 and then 
 #divide all images into patches of 256x256x3. 
 image_dataset = []  
+print(os.walk(root_directory))
 for path, subdirs, files in sorted(os.walk(root_directory)):
     # print(path)
     dirname = path.split(os.path.sep)[-1]
@@ -120,13 +122,13 @@ mask_dataset =  np.array(mask_dataset)
 #Sanity check, view few mages
 import random
 import numpy as np
-image_number = random.randint(0, len(image_dataset))
-plt.figure(figsize=(12, 6))
-plt.subplot(121)
-plt.imshow(np.reshape(image_dataset[image_number], (patch_size, patch_size, 3)))
-plt.subplot(122)
-plt.imshow(np.reshape(mask_dataset[image_number], (patch_size, patch_size, 3)))
-plt.show()
+# image_number = random.randint(0, len(image_dataset))
+# plt.figure(figsize=(12, 6))
+# plt.subplot(121)
+# plt.imshow(np.reshape(image_dataset[image_number], (patch_size, patch_size, 3)))
+# plt.subplot(122)
+# plt.imshow(np.reshape(mask_dataset[image_number], (patch_size, patch_size, 3)))
+# plt.show()
 
 
 ###########################################################################
@@ -172,7 +174,7 @@ Unlabeled = '#9B9B9B'.lstrip('#')
 Unlabeled = np.array(tuple(int(Unlabeled[i:i+2], 16) for i in (0, 2, 4))) #155, 155, 155
 
 label = single_patch_mask
-
+print("THIS IS THE FUCKING LABEL: ",label)
 # Now replace RGB to integer values to be used as labels.
 #Find pixels with combination of RGB for the above defined arrays...
 #if matches then replace all values in that pixel with a specific integer
@@ -207,13 +209,13 @@ print("Unique labels in label dataset are: ", np.unique(labels))
 #Another Sanity check, view few mages
 import random
 import numpy as np
-image_number = random.randint(0, len(image_dataset))
-plt.figure(figsize=(12, 6))
-plt.subplot(121)
-plt.imshow(image_dataset[image_number])
-plt.subplot(122)
-plt.imshow(labels[image_number][:,:,0])
-plt.show()
+# image_number = random.randint(0, len(image_dataset))
+# plt.figure(figsize=(12, 6))
+# plt.subplot(121)
+# plt.imshow(image_dataset[image_number])
+# plt.subplot(122)
+# plt.imshow(labels[image_number][:,:,0])
+# plt.show()
 
 
 ############################################################################
@@ -250,145 +252,32 @@ IMG_CHANNELS = X_train.shape[3]
 from simple_multi_unet_model import multi_unet_model, jacard_coef  
 
 metrics=['accuracy', jacard_coef]
-
+params = {
+    'dropout_rate': 0.1,
+    'learning_rate': 0.001,
+}
 def get_model():
-    return multi_unet_model(n_classes=n_classes, IMG_HEIGHT=IMG_HEIGHT, IMG_WIDTH=IMG_WIDTH, IMG_CHANNELS=IMG_CHANNELS)
+    return multi_unet_model(dr=params['dropout_rate'], n_classes=n_classes, IMG_HEIGHT=IMG_HEIGHT, IMG_WIDTH=IMG_WIDTH, IMG_CHANNELS=IMG_CHANNELS)
 
 model = get_model()
-model.compile(optimizer='adam', loss=total_loss, metrics=metrics)
+
+optimized_params = nni.get_next_parameter()
+params.update(optimized_params)
+print(params)
+adam = tf.keras.optimizers.Adam(learning_rate=params['learning_rate'])
+
+model.compile(optimizer=adam, loss=total_loss, metrics=metrics)
 #model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=metrics)
 model.summary()
-
+callback = tf.keras.callbacks.LambdaCallback(
+    on_epoch_end = lambda epoch, logs: nni.report_intermediate_result(logs['accuracy'])
+)
 
 history1 = model.fit(X_train, y_train, 
                     batch_size = 16, 
                     verbose=1, 
-                    epochs=100, 
-                    validation_data=(X_test, y_test), 
+                    epochs=10, 
+                    callbacks=[callback], 
                     shuffle=False)
-
-#Minmaxscaler
-#With weights...[0.1666, 0.1666, 0.1666, 0.1666, 0.1666, 0.1666]   in Dice loss
-#With focal loss only, after 100 epochs val jacard is: 0.62  (Mean IoU: 0.6)            
-#With dice loss only, after 100 epochs val jacard is: 0.74 (Reached 0.7 in 40 epochs)
-#With dice + 5 focal, after 100 epochs val jacard is: 0.711 (Mean IoU: 0.611)
-##With dice + 1 focal, after 100 epochs val jacard is: 0.75 (Mean IoU: 0.62)
-#Using categorical crossentropy as loss: 0.71
-
-##With calculated weights in Dice loss.    
-#With dice loss only, after 100 epochs val jacard is: 0.672 (0.52 iou)
-
-
-##Standardscaler 
-#Using categorical crossentropy as loss: 0.677
-
-# model.save('models/satellite_standard_unet_100epochs.hdf5')
-############################################################
-#TRY ANOTHE MODEL - WITH PRETRINED WEIGHTS
-#Resnet backbone
-BACKBONE = 'resnet34'
-preprocess_input = sm.get_preprocessing(BACKBONE)
-
-# preprocess input
-X_train_prepr = preprocess_input(X_train)
-X_test_prepr = preprocess_input(X_test)
-
-# define model
-model_resnet_backbone = sm.Unet(BACKBONE, encoder_weights='imagenet', classes=n_classes, activation='softmax')
-
-# compile keras model with defined optimozer, loss and metrics
-#model_resnet_backbone.compile(optimizer='adam', loss=focal_loss, metrics=metrics)
-model_resnet_backbone.compile(optimizer='adam', loss='categorical_crossentropy', metrics=metrics)
-
-print(model_resnet_backbone.summary())
-
-
-history2=model_resnet_backbone.fit(X_train_prepr, 
-          y_train,
-          batch_size=16, 
-          epochs=100,
-          verbose=1,
-          validation_data=(X_test_prepr, y_test))
-
-#Minmaxscaler
-#With weights...[0.1666, 0.1666, 0.1666, 0.1666, 0.1666, 0.1666]   in Dice loss
-#With focal loss only, after 100 epochs val jacard is:               
-#With dice + 5 focal, after 100 epochs val jacard is: 0.73 (reached 0.71 in 40 epochs. So faster training but not better result. )
-##With dice + 1 focal, after 100 epochs val jacard is:   
-    ##Using categorical crossentropy as loss: 0.755 (100 epochs)
-#With calc. weights supplied to model.fit: 
- 
-#Standard scaler
-#Using categorical crossentropy as loss: 0.74
-
-
-###########################################################
-#plot the training and validation accuracy and loss at each epoch
-history = history1
-loss = history.history['loss']
-val_loss = history.history['val_loss']
-epochs = range(1, len(loss) + 1)
-plt.plot(epochs, loss, 'y', label='Training loss')
-plt.plot(epochs, val_loss, 'r', label='Validation loss')
-plt.title('Training and validation loss')
-plt.xlabel('Epochs')
-plt.ylabel('Loss')
-plt.legend()
-plt.show()
-
-acc = history.history['jacard_coef']
-val_acc = history.history['val_jacard_coef']
-
-plt.plot(epochs, acc, 'y', label='Training IoU')
-plt.plot(epochs, val_acc, 'r', label='Validation IoU')
-plt.title('Training and validation IoU')
-plt.xlabel('Epochs')
-plt.ylabel('IoU')
-plt.legend()
-plt.show()
-
-
-##################################
-from keras.models import load_model
-model = load_model("models/satellite_standard_unet_100epochs.hdf5", compile=False)# custom_objects={'dice_loss_plus_2focal_loss': total_loss,'jacard_coef':jacard_coef})
-
-#IOU
-y_pred=model.predict(X_test)
-y_pred_argmax=np.argmax(y_pred, axis=3)
-y_test_argmax=np.argmax(y_test, axis=3)
-
-
-#Using built in keras function for IoU
-from keras.metrics import MeanIoU
-n_classes = 6
-IOU_keras = MeanIoU(num_classes=n_classes)  
-IOU_keras.update_state(y_test_argmax, y_pred_argmax)
-print("Mean IoU =", IOU_keras.result().numpy())
-
-#######################################################################
-#Predict on a few images
-
-# Generate 10 images
-import random
-
-for i in range(10):
-    test_img_number = random.randint(0, len(X_test))
-    test_img = X_test[test_img_number]
-    ground_truth=y_test_argmax[test_img_number]
-    test_img_input=np.expand_dims(test_img, 0)
-    prediction = (model.predict(test_img_input))
-    predicted_img=np.argmax(prediction, axis=3)[0,:,:]
-
-    plt.figure(figsize=(12, 8))
-    plt.subplot(231)
-    plt.title('Testing Image')
-    plt.imshow(test_img)
-    plt.subplot(232)
-    plt.title('Testing Label')
-    plt.imshow(ground_truth)
-    plt.subplot(233)
-    plt.title('Prediction on test image')
-    plt.imshow(predicted_img)
-    plt.show()
-
-#####################################################################
+loss , acc , jar = model.evaluate(X_test, y_test)
+nni.report_final_result(acc)
