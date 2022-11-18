@@ -4,6 +4,6 @@
 
 This branch contains Milestone 1 of the project.
 
-## Milestone 2: Perform Baseline Semantic Segmentation (30 points by 11/6)
+## Milestone 3: Hyperparameter Optimization (30 points due by 11/20)
 
-Check Docs Folder for Milestone 2 baseline-performance.md .
+Check docs/hyperparameter-optimization.md file for Milestone 3 explanation.
