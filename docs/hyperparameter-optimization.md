@@ -18,19 +18,17 @@ where the function $f$ represents the output of the distribution produced by the
 
 Initially, these functions can be very noisy without real meaning and would not fit the dataset well. However, as examples from a dataset are added, these functions adjust accordingly to try to make an accurate model. Observe the following figure
 
-![Gaussian Processes](./GaussianProcesses.png)
-
 <p align="center">
-<sub><sup>Gaussian Processes for Machine Learning by Carl Edward Rasmussen and Christopher K. I. Williams (2004)</sup></sub>
+  <img src="./GaussianProcesses.png" alt="Gaussian Processes" style="width:70%;"/><br>
+  <sub><sup>Gaussian Processes for Machine Learning by Carl Edward Rasmussen and Christopher K. I. Williams (2004)</sup></sub>
 </p>
 
 On the left is the initial state which is called "prior" and it contains all the functions that will be used to estimate the dataset without there being any data for the functions to adjust to yet. On the right-hand side, we have the "posterior" graph which includes a great deal of information to dissect. The following figure is a more descriptive depiction of this graph.
 
-![Posterior](./Posterior.png)
-
 <p align="center">
-<sub><sup>A Guide to Hyper-Parameter Optimization (HPO), Maël Fabien (2019)
-https://maelfabien.github.io/machinelearning/Explorium4</sup></sub>
+  <img src="./Posterior.png" alt="Posterior" style="width:70%;"/><br>
+  <sub><sup>A Guide to Hyper-Parameter Optimization (HPO), Maël Fabien (2019)
+  https://maelfabien.github.io/machinelearning/Explorium4</sup></sub>
 </p>
 
 The dotted curves are a collection of functions that give an estimate of how the data may be represented. Through a large amount of these functions, the true distribution - which is shown as the red line - can be computed through their average. Moreover, these functions are extremely useful because they also give confidence intervals which show that as the values get away from a converging point (a sample observation) then the probability of error increases.
