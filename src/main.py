@@ -12,6 +12,12 @@ from nni.experiment import Experiment
 
 # Define search space
 search_space = {
+    'w_1': {'_type': 'uniform', '_value': [0.0, 1.0]},
+    'w_2': {'_type': 'uniform', '_value': [0.0, 1.0]},
+    'w_3': {'_type': 'uniform', '_value': [0.0, 1.0]},
+    'w_4': {'_type': 'uniform', '_value': [0.0, 1.0]},
+    'w_5': {'_type': 'uniform', '_value': [0.0, 1.0]},
+    'w_6': {'_type': 'uniform', '_value': [0.0, 1.0]},
     'dropout_rate': {'_type': 'uniform', '_value': [0.1, 0.9]},
     'learning_rate': {'_type': 'loguniform', '_value': [0.0001, 0.1]},
 }

@@ -36,6 +36,7 @@ from patchify import patchify
 from PIL import Image
 import segmentation_models as sm
 from tensorflow.keras.metrics import MeanIoU
+import tensorflow as tf
 
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 scaler = MinMaxScaler()
@@ -236,8 +237,17 @@ X_train, X_test, y_train, y_test = train_test_split(image_dataset, labels_cat, t
 # weights = compute_class_weight('balanced', np.unique(np.ravel(labels,order='C')), 
 #                               np.ravel(labels,order='C'))
 # print(weights)
-
-weights = [0.1666, 0.1666, 0.1666, 0.1666, 0.1666, 0.1666]
+params = {
+    'w_1': .402241,
+    'w_2': .981641,
+    'w_3': .605921,
+    'w_4': .952150,
+    'w_5': .011445,
+    'w_6': .241958,
+    'dropout_rate': 0.37382,
+    'learning_rate': 0.001395,
+}
+weights = [params['w_1'], params['w_2'], params['w_3'], params['w_4'], params['w_5'], params['w_6']]
 dice_loss = sm.losses.DiceLoss(class_weights=weights) 
 focal_loss = sm.losses.CategoricalFocalLoss()
 total_loss = dice_loss + (1 * focal_loss)  #
@@ -252,10 +262,12 @@ from simple_multi_unet_model import multi_unet_model, jacard_coef
 metrics=['accuracy', jacard_coef]
 
 def get_model():
-    return multi_unet_model(n_classes=n_classes, IMG_HEIGHT=IMG_HEIGHT, IMG_WIDTH=IMG_WIDTH, IMG_CHANNELS=IMG_CHANNELS)
+    return multi_unet_model(dr=params['dropout_rate'], n_classes=n_classes, IMG_HEIGHT=IMG_HEIGHT, IMG_WIDTH=IMG_WIDTH, IMG_CHANNELS=IMG_CHANNELS)
 
 model = get_model()
-model.compile(optimizer='adam', loss=total_loss, metrics=metrics)
+adam = tf.keras.optimizers.Adam(learning_rate=params['learning_rate'])
+
+model.compile(optimizer=adam, loss=total_loss, metrics=metrics)
 #model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=metrics)
 model.summary()
 
@@ -282,33 +294,33 @@ history1 = model.fit(X_train, y_train,
 ##Standardscaler 
 #Using categorical crossentropy as loss: 0.677
 
-# model.save('models/satellite_standard_unet_100epochs.hdf5')
+model.save('models/satellite_standard_unet_100epochs_HPO.hdf5')
 ############################################################
 #TRY ANOTHE MODEL - WITH PRETRINED WEIGHTS
 #Resnet backbone
-BACKBONE = 'resnet34'
-preprocess_input = sm.get_preprocessing(BACKBONE)
+# BACKBONE = 'resnet34'
+# preprocess_input = sm.get_preprocessing(BACKBONE)
 
-# preprocess input
-X_train_prepr = preprocess_input(X_train)
-X_test_prepr = preprocess_input(X_test)
+# # preprocess input
+# X_train_prepr = preprocess_input(X_train)
+# X_test_prepr = preprocess_input(X_test)
 
-# define model
-model_resnet_backbone = sm.Unet(BACKBONE, encoder_weights='imagenet', classes=n_classes, activation='softmax')
+# # define model
+# model_resnet_backbone = sm.Unet(BACKBONE, encoder_weights='imagenet', classes=n_classes, activation='softmax')
 
-# compile keras model with defined optimozer, loss and metrics
-#model_resnet_backbone.compile(optimizer='adam', loss=focal_loss, metrics=metrics)
-model_resnet_backbone.compile(optimizer='adam', loss='categorical_crossentropy', metrics=metrics)
+# # compile keras model with defined optimozer, loss and metrics
+# #model_resnet_backbone.compile(optimizer='adam', loss=focal_loss, metrics=metrics)
+# model_resnet_backbone.compile(optimizer='adam', loss='categorical_crossentropy', metrics=metrics)
 
-print(model_resnet_backbone.summary())
+# print(model_resnet_backbone.summary())
 
 
-history2=model_resnet_backbone.fit(X_train_prepr, 
-          y_train,
-          batch_size=16, 
-          epochs=100,
-          verbose=1,
-          validation_data=(X_test_prepr, y_test))
+# history2=model_resnet_backbone.fit(X_train_prepr, 
+#           y_train,
+#           batch_size=16, 
+#           epochs=100,
+#           verbose=1,
+#           validation_data=(X_test_prepr, y_test))
 
 #Minmaxscaler
 #With weights...[0.1666, 0.1666, 0.1666, 0.1666, 0.1666, 0.1666]   in Dice loss

@@ -174,7 +174,7 @@ Unlabeled = '#9B9B9B'.lstrip('#')
 Unlabeled = np.array(tuple(int(Unlabeled[i:i+2], 16) for i in (0, 2, 4))) #155, 155, 155
 
 label = single_patch_mask
-print("THIS IS THE FUCKING LABEL: ",label)
+
 # Now replace RGB to integer values to be used as labels.
 #Find pixels with combination of RGB for the above defined arrays...
 #if matches then replace all values in that pixel with a specific integer
@@ -238,8 +238,17 @@ X_train, X_test, y_train, y_test = train_test_split(image_dataset, labels_cat, t
 # weights = compute_class_weight('balanced', np.unique(np.ravel(labels,order='C')), 
 #                               np.ravel(labels,order='C'))
 # print(weights)
-
-weights = [0.1666, 0.1666, 0.1666, 0.1666, 0.1666, 0.1666]
+params = {
+    'w_1': .402241,
+    'w_2': .981641,
+    'w_3': .605921,
+    'w_4': .952150,
+    'w_5': .011445,
+    'w_6': .241958,
+    'dropout_rate': 0.37382,
+    'learning_rate': 0.001395,
+}
+weights = [params['w_1'], params['w_2'], params['w_3'], params['w_4'], params['w_5'], params['w_6']]
 dice_loss = sm.losses.DiceLoss(class_weights=weights) 
 focal_loss = sm.losses.CategoricalFocalLoss()
 total_loss = dice_loss + (1 * focal_loss)  #
@@ -252,10 +261,6 @@ IMG_CHANNELS = X_train.shape[3]
 from simple_multi_unet_model import multi_unet_model, jacard_coef  
 
 metrics=['accuracy', jacard_coef]
-params = {
-    'dropout_rate': 0.1,
-    'learning_rate': 0.001,
-}
 def get_model():
     return multi_unet_model(dr=params['dropout_rate'], n_classes=n_classes, IMG_HEIGHT=IMG_HEIGHT, IMG_WIDTH=IMG_WIDTH, IMG_CHANNELS=IMG_CHANNELS)
 
@@ -276,7 +281,7 @@ callback = tf.keras.callbacks.LambdaCallback(
 history1 = model.fit(X_train, y_train, 
                     batch_size = 16, 
                     verbose=1, 
-                    epochs=10, 
+                    epochs=100, 
                     callbacks=[callback], 
                     shuffle=False)
 loss , acc , jar = model.evaluate(X_test, y_test)
