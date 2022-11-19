@@ -48,3 +48,51 @@ https://link.springer.com/chapter/10.1007/978-3-540-28650-9_4
 [3] A Guide to Hyper-Parameter Optimization (HPO) (2019)
 Maël Fabien
 https://maelfabien.github.io/machinelearning/Explorium4
+
+<br>
+<hr />
+<br>
+
+# Results:
+
+### NNI HPO Traning Results [Trials = 10, Epochs = 10]:
+
+There are 8 different hyper-parameters that we wanted to optimize, which are dropout rate, learning rate, and all the weights for each class (w_1, w_2, w_3, w_4, w_5, and w_6). We inputted these parameters in the NNI HPO to train and we used our method which is the GP (Gaussian Process) Tuner.
+
+<p align="center">
+  <img src="./NNI_HPO.png" style="width: 70%;" alt="NNI HPO"/>
+</p>
+
+This image illustrates the training process for the HPO using NNI.
+
+<p align="center">
+  <img src="./NNI_HPO_values.png" style="width: 70%;" alt="NNI HPO Values"/>
+</p>
+
+This image shows the hyper-parameter set in the top trial; those parameters are then used to train a new model that would have better results!
+
+### Precision and Recall
+
+<p align="center">
+  <img src="./hpo_Precision_vs_Recall.png" style="width: 70%;" alt="Precision vs Recall"/>
+</p>
+
+The improvement here from the base model from milestone-2 is essentially the same which is still great because this indicates that the model is excellent; it attempts to maximize both precision and recall.
+
+### Training and Validation for IoU and Loss
+
+<p align="center">
+  <img src="./hpo_training_validation_IoU.png" style="width: 70%;" alt="Training and Validation IoU"/>
+</p>
+
+<p align="center">
+  <img src="./hpo_training_validation_loss.png" style="width: 70%;" alt="Training and Validation Loss"/>
+</p>
+
+The significant observation here is that with the new hyper-parameters, the model can improve much quicker in the beginning. As it can be seen in the Traning and Validation IoU graph, there is a steep improvement initially - this improvement is much quicker than how it was without these optimized hyper-parameters. Similarly, in the Traning and Validation Loss graph, there is a steep decrease in loss initially and then it plateaus; from this, the training can be stopped earlier, saving time and resources. This supports the research that good hyper-parameters can be beneficial to the model in numerous different ways.
+
+### Best 10 Segmented Images From Validation Set
+
+These images are in the docs folder with the format of "hpo_figure\_#.png" (1-10). The code that we implemented to get these images is located at src/10_best_segmented_images.py.
+
+It is important to mention that many of the images are deserts, consequently, the testing label produced is the same color for the entire image. The model creates an equivalent prediction on the test image without showing real results; in other words, both images are just one color without any segmentation. Although these images are not useful, they have high accuracy and we need to filter them out because we are only concerned with images that show good segmentation with high accuracy. To do this, we order the predicted images based on accuracy and keep going through them until we find valuable ones. Again, this implementation is in the file mentioned above.

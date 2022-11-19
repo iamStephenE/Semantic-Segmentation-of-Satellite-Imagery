@@ -222,7 +222,7 @@ metrics=['accuracy', jacard_coef]
 
 ##################################
 from keras.models import load_model
-model = load_model("models/satellite_standard_unet_100epochs.hdf5", compile=False)# custom_objects={'dice_loss_plus_2focal_loss': total_loss,'jacard_coef':jacard_coef})
+model = load_model("models/satellite_standard_unet_100epochs_HPO.hdf5", compile=False)# custom_objects={'dice_loss_plus_2focal_loss': total_loss,'jacard_coef':jacard_coef})
 
 #IOU
 y_pred=model.predict(X_test)
@@ -261,21 +261,20 @@ print("Mean IoU =", IOU_keras.result().numpy())
 
 from keras.metrics import MeanIoU
 from keras.metrics import Recall, Precision
-p = Precision(thresholds=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,1])
-p.update_state(y_test, y_pred)
-r = Recall(thresholds=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,1])
-r.update_state(y_test, y_pred)
+# p = Precision(thresholds=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
+# p.update_state(y_test, y_pred)
+# r = Recall(thresholds=[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9])
+# r.update_state(y_test, y_pred)
 
-recall = np.append([0], np.flip(r.result().numpy()))
-precision = np.append([1], np.flip(p.result().numpy()))
+# recall = np.append([0], np.flip(r.result().numpy()))
+# precision = np.append([1], np.flip(p.result().numpy()))
 
-plt.plot(recall, precision, 'o-')
+# plt.plot(recall, precision, 'o-')
 
-plt.title("Precision-Recall Curve")
-plt.xlabel('Recall')
-plt.ylabel('Precision')
-plt.show()
-'''
+# plt.title("Precision-Recall Curve")
+# plt.xlabel('Recall')
+# plt.ylabel('Precision')
+# plt.show()
 
 best_10 = []
 for i in range(len(X_test)):
@@ -285,7 +284,7 @@ for i in range(len(X_test)):
     predicted_img=np.argmax(prediction, axis=3)[0,:,:]
     acc = jacard_coef(y_test[i], prediction[0])
 
-    if (len(best_10) < 10):
+    if (len(best_10) < 110):
         best_10.append([i, acc])
     else:
         worst = best_10[0][1]
@@ -297,7 +296,7 @@ for i in range(len(X_test)):
         if (acc > worst):
             best_10[worst_index] = [i, acc]
 
-print(best_10)
+best_10 = sorted(best_10, key=lambda x: x[1])[0:20][::-1]
 
 for best in best_10:
     test_img = X_test[best[0]]
@@ -316,5 +315,5 @@ for best in best_10:
     plt.title('Prediction on test image')
     plt.imshow(predicted_img)
     plt.show() 
-'''
-#####################################################################
+
+print(len(X_test))
