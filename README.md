@@ -2,7 +2,7 @@
 
 ## Group 8: Stephen Ebrahim and Ebram Mekhail
 
-This branch contains Milestone 1 of the project.
+This branch contains Milestone 3 of the project.
 
 ## Milestone 3: Hyperparameter Optimization (30 points due by 11/20)
 
