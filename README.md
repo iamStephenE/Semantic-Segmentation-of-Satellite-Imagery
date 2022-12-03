@@ -2,8 +2,8 @@
 
 ## Group 8: Stephen Ebrahim and Ebram Mekhail
 
-This branch contains Milestone 3 of the project.
+This branch contains Milestone 4 of the project.
 
-## Milestone 3: Hyperparameter Optimization (30 points due by 11/20)
+## Milestone 4: Model Compression (30 points due by 12/04)
 
-Check docs/hyperparameter-optimization.md file for Milestone 3 explanation.
+Check docs/knowledge-distillation.md file for Milestone 4 explanation.
