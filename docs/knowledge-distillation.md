@@ -43,5 +43,35 @@ https://arxiv.org/abs/2006.05525
 
 ## Part 2 (Cont'd): Results
 
+### Alternate Appraoch for Model Compression: Level-Pruner (Epochs = 100)
+
+Note: As the professor mentioned if it is not possible to achieve the model compression through the Knowledge Distillation technique, we can look for alternate methods.
+
 After researching more about what is possible with NNI it seemed that it would be impossible to implement knowledge distillation.
-For example for model compression while pyTorch had 9 different ways to prune the model and compress it TensorFlow only had 2 methods. Functions like Model Speed up and Mutli-Step learning rate where not compatible with TensorFlow. In addition to this the way we create model is very hard for the NNI system to understand it and we had difficulties just implementing it. In addition to all of this, one of the two methods we could have used which where LevelPruner and SlimPruner. SlimPruner is not function with our model aswell which left us with One Method to use which was the LevelPruner.
+For model compression, while PyTorch had nine different ways to prune the model and compress it, TensorFlow only had two methods. Functions like Model Speed up and Multi-Step learning rate were not compatible with TensorFlow. In addition, the way we create the model is extremely complicated for the NNI system to understand and we had difficulties just implementing it. Two methods we could have used were Level-Pruner and Slim-Pruner; however, SlimPruner was not compatible with our model which left us with one remaining method to use: Level-Pruner.
+
+### Precision vs Recall
+
+<p align="center">
+  <img src="./LP_Precision_vs_Recall.png" style="width: 70%;" alt="Precision vs Recall"/>
+</p>
+
+As it can be seen, the Precision-Recall curve here is pretty good for a compressed model. Although it is slightly less than the Precision-Recall curve from the previous milestone models, it is still well above the line of "no-skill". The line of "no-skill" (which is just the $y = x$ line) represents a model that randomly guesses. This model has a curve that is well above it implying that it is accurate - which is great for a compressed model using the Level-Pruner technique.
+
+### Training and Validation for IoU and Loss
+
+<p align="center">
+  <img src="./LPTrainingAndValidationIOU.png" style="width: 70%;" alt="Training and Validation IoU"/>
+</p>
+
+<p align="center">
+  <img src="./LPTrainingAndValidationLoss.png" style="width: 70%;" alt="Training and Validation Loss"/>
+</p>
+
+A major thing to note here is the significant "jitter" or dip that occurs in the training process. This may be due to some sort of incorrect optimization that the model chooses; nonetheless, it manages to regain its accuracy soon after and continue with its training. It is apparent that the model is very slowly yet consistently improving; evidently, we can see the limitation imposed by compression techniques yet the model still performs well.
+
+### Best 10 Segmented Images From Validation Set
+
+These images are in the docs folder with the format of "Figure\_#.png" (1-10). The code that we implemented to get these images is located at src/10_best_segmented_images.py. As mentioned in the prior milestone, because there are a lot of "empty" pictures affecting the process of choosing these images, we carefully collected the relevant ones.
+
+Another thing to mention is that even though this is the compressed model, the predicted segmented images are very similar to the other more complicated models. This highlights the fact that through model compression not only is the model simpler and easier to use, but it can also yield exceptional and applicable results!
