@@ -43,7 +43,7 @@ https://arxiv.org/abs/2006.05525
 
 ## Part 2 (Cont'd): Results
 
-### Alternate Appraoch for Model Compression: Level-Pruner (Epochs = 100)
+### Alternate Approach for Model Compression: Level-Pruner (Epochs = 100)
 
 Note: As the professor mentioned if it is not possible to achieve the model compression through the Knowledge Distillation technique, we can look for alternate methods.
 
@@ -56,7 +56,7 @@ For model compression, while PyTorch had nine different ways to prune the model 
   <img src="./LP_Precision_vs_Recall.png" style="width: 70%;" alt="Precision vs Recall"/>
 </p>
 
-As it can be seen, the Precision-Recall curve here is pretty good for a compressed model. Although it is slightly less than the Precision-Recall curve from the previous milestone models, it is still well above the line of "no-skill". The line of "no-skill" (which is just the $y = x$ line) represents a model that randomly guesses. This model has a curve that is well above it implying that it is accurate - which is great for a compressed model using the Level-Pruner technique.
+As it can be seen, the Precision-Recall curve here is pretty good for a compressed model. Although it is slightly less than the Precision-Recall curve from the previous milestone models, it is still well above the line of "no-skill". The line of "no-skill" (which is just the $y = x$ line) represents a model that randomly guesses. This model has a curve that is well above it implying that it is accurate - which is great for a compressed model using the Level-Pruner technique. A Level-Pruner is a basic one-shot pruner. In some publications people can refer to it as a magnitude pruning or a fine-grained pruning. It will mask the smallest magnitude weights in each specified layer by a sparsity ratio configured in the config list. The Level-Pruner function takes to parameters the model to be pruned and the config list. In the config list  we can give it several options but the most important two are the sparsity level and the operation types to be pruned. The sparsity level is the specific sparsity for each layer in the model to be compressed. It is common practice to have around %80 as your sparsity level, and for the operation types we leave that as default as that is what the developers think is the best. After pruning the model we compress it and refit it with the data to check its performance since we refit the performance increases. Then we save the model for others to use.
 
 ### Training and Validation for IoU and Loss
 
