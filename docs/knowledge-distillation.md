@@ -42,3 +42,6 @@ https://arxiv.org/abs/2006.05525
 <br>
 
 ## Part 2 (Cont'd): Results
+
+After researching more about what is possible with NNI it seemed that it would be impossible to implement knowledge distillation.
+For example for model compression while pyTorch had 9 different ways to prune the model and compress it TensorFlow only had 2 methods. Functions like Model Speed up and Mutli-Step learning rate where not compatible with TensorFlow. In addition to this the way we create model is very hard for the NNI system to understand it and we had difficulties just implementing it. In addition to all of this, one of the two methods we could have used which where LevelPruner and SlimPruner. SlimPruner is not function with our model aswell which left us with One Method to use which was the LevelPruner.
